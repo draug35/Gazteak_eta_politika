@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gazteak & Politika — Zergatik konprometitu eta bozkatu</title>
+  <meta name="description" content="Web txiki bat: 17 urteko gazteentzat, zergatik konprometitu pentsamendu politikoarekin eta zergatik bozkatu (18 urtean)." />
+  <style>
+    /* ====== Kolore tokens berrituak + paleta hautatzailea ====== */
+    :root{
+      /* Neutroak (ilun)
+         Oharra: .light klaseak neutro hauek ordezkatzen ditu, baina ez du --accent aldatu, hark paletak kudeatzen baitu. */
+      --bg: #0b0f1c;
+      --fg: #f7f9ff;
+      --muted: #c7cbe3;
+      --card: #12172a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --max: 1100px;
+
+      /* Paleta lehenetsia (indigo + mint) */
+      --accent: #7c5cff;   /* indigo elektrikoa */
+      --accent-2: #49e8a9; /* mint bizia */
+      --ok: #23d18b;
+      --danger: #ff6b88;
+    }
+    .light{ /* argi moduan neutroak bakarrik aldatu */
+      --bg: #f8fbff;
+      --fg: #0f1420;
+      --muted: #3f4663;
+      --card: #ffffff;
+      --shadow: 0 8px 24px rgba(15,20,32,.08);
+    }
+
+    /* Beste bi paleta: teal+coral eta basque green+crimson */
+    :root[data-palette="teal"]{ --accent:#00b3a4; --accent-2:#ff7a7a; --ok:#00c2a8; --danger:#ff5c7a; }
+    :root[data-palette="basque"]{ --accent:#0e8f5b; --accent-2:#e63946; --ok:#15a76c; --danger:#e01e37; }
+
+    html,body{height:100%}
+    body{
+      margin:0; font: 16px/1.6 system-ui,-apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 15% 10%, color-mix(in hsl, var(--accent) 18%, var(--bg)), transparent 60%),
+                  radial-gradient(900px 600px at 90% 20%, color-mix(in hsl, var(--accent-2) 18%, var(--bg)), transparent 55%),
+                  var(--bg);
+      color: var(--fg);
+    }
+    a{color: var(--accent); text-decoration: none}
+    a:hover{text-decoration: underline}
+    .container{max-width: var(--max); margin: 0 auto; padding: 0 20px}
+    header{
+      position: sticky; top:0; z-index: 50; backdrop-filter: blur(12px);
+      background: color-mix(in hsl, var(--bg) 85%, transparent);
+      border-bottom: 1px solid color-mix(in hsl, var(--fg) 10%, transparent);
+    }
+    .nav{display:flex; align-items:center; gap:12px; padding: 12px 0; flex-wrap: wrap}
+    .brand{font-weight: 800; letter-spacing:.2px}
+    .brand span{opacity:.7; font-weight:600}
+    .navlinks{display:flex; gap:10px; flex-wrap: wrap}
+    .navlinks a{padding:8px 12px; border-radius: 999px; background: color-mix(in hsl, var(--card) 70%, transparent); box-shadow: var(--shadow)}
+    .spacer{flex:1}
+    .btn{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; border:1px solid color-mix(in hsl, var(--fg) 12%, transparent); background: var(--card); color: var(--fg); box-shadow: var(--shadow); cursor:pointer}
+    .btn.small{padding:6px 10px; font-size: 13px}
+    .btn:hover{transform: translateY(-1px)}
+    .ghost{background: transparent}
+
+    /* Paleta hautatzailea */
+    .palette{display:flex; align-items:center; gap:8px}
+    .swatch{width:30px; height:30px; border-radius: 10px; border:1px solid color-mix(in hsl, var(--fg) 15%, transparent); cursor: pointer; box-shadow: var(--shadow); background: linear-gradient(135deg, var(--sw), var(--sw2));}
+    .swatch[aria-current="true"]{outline: 3px solid color-mix(in hsl, var(--accent) 60%, white)}
+
+    input[type="search"]{
+      background: var(--card); color: var(--fg); border:1px solid color-mix(in hsl, var(--fg) 12%, transparent);
+      border-radius: 12px; padding: 10px 12px; min-width: 220px; outline: none
+    }
+
+    .hero{padding: 48px 0 10px}
+    .hero h1{font-size: clamp(26px, 4vw, 42px); line-height:1.15; margin: 0 0 12px}
+    .hero p{color: var(--muted); margin: 0 0 18px}
+    .pill{display:inline-block; padding:6px 12px; border-radius:999px; background: color-mix(in hsl, var(--accent) 18%, var(--card)); color: var(--fg); font-weight:700}
+
+    .grid{display:grid; gap:16px}
+    .grid.cols-2{grid-template-columns: repeat(2, minmax(0,1fr))}
+    .grid.cols-3{grid-template-columns: repeat(3, minmax(0,1fr))}
+    @media (max-width: 980px){
+      .grid.cols-2, .grid.cols-3{grid-template-columns: 1fr}
+      .navlinks{display:none}
+      input[type="search"]{flex: 1 1 100%; min-width: 0}
+    }
+
+    .card{background: linear-gradient(180deg, color-mix(in hsl, var(--card) 92%, transparent), color-mix(in hsl, var(--accent) 3%, var(--card))); border:1px solid color-mix(in hsl, var(--fg) 10%, transparent); border-radius: var(--radius); padding:18px; box-shadow: var(--shadow); position: relative}
+    .card h3{margin:0 0 6px; font-size: 18px}
+    .card h2{margin:0; padding-right: 36px}
+    .eyebrow{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color: var(--muted)}
+    .kpi{font-weight:900; font-size: 28px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip:text; color: transparent}
+
+    .icon{width:22px; height:22px; display:inline-block; vertical-align:-4px; margin-right:8px}
+    .muted{color: var(--muted)}
+
+    .table{width:100%; border-collapse: collapse; border-radius: var(--radius); overflow:hidden}
+    .table th,.table td{padding:12px 14px; border-bottom:1px solid color-mix(in hsl, var(--fg) 10%, transparent)}
+    .table th{text-align:left; font-size:14px; color: var(--muted); background: color-mix(in hsl, var(--card) 90%, transparent)}
+    .table tr:hover td{background: color-mix(in hsl, var(--accent) 10%, transparent)}
+
+    details{background: var(--card); border:1px solid color-mix(in hsl, var(--fg) 10%, transparent); border-radius: var(--radius); padding:14px 16px}
+    summary{cursor: pointer; font-weight:700}
+
+    .chips{display:flex; flex-wrap:wrap; gap:10px}
+    .chip{padding:8px 12px; border-radius:999px; background: color-mix(in hsl, var(--accent) 20%, var(--card)); border:1px solid color-mix(in hsl, var(--fg) 10%, transparent); cursor:pointer; user-select:none}
+    .chip.active{outline: 2px solid var(--accent)}
+
+    .callout{border-left: 5px solid var(--accent); background: color-mix(in hsl, var(--accent) 12%, var(--card)); padding: 12px 14px; border-radius: 12px}
+    .danger{border-left-color: var(--danger); background: color-mix(in hsl, var(--danger) 12%, var(--card))}
+
+    .progress{height:10px; background: color-mix(in hsl, var(--fg) 8%, transparent); border-radius:999px; overflow:hidden}
+    .progress > span{display:block; height:100%; width:0; background: linear-gradient(90deg, var(--accent), var(--accent-2))}
+
+    footer{margin: 40px 0 60px; color: var(--muted); font-size: 14px}
+    .top{position: fixed; right: 18px; bottom: 18px; z-index: 60}
+
+    /* Collapsible cards */
+    .toggle{position:absolute; right: 14px; top: 14px; font-size: 18px; opacity:.8; cursor:pointer}
+    .content{overflow: clip; transition: grid-template-rows .28s ease, opacity .28s ease; display:grid; grid-template-rows: 1fr; opacity:1}
+    .content.collapsed{grid-template-rows: 0fr; opacity:.2}
+    .content > .inner{min-height:0}
+
+    /* Search highlight */
+    mark{background: color-mix(in hsl, var(--accent) 28%, transparent); padding:0 .2em; border-radius:6px}
+
+    /* Modal Wizard */
+    .modal{position: fixed; inset: 0; display:none; place-items:center; background: color-mix(in hsl, var(--bg) 65%, rgba(0,0,0,.35)); z-index: 90}
+    .modal.open{display:grid}
+    .modal .panel{background: var(--card); border:1px solid color-mix(in hsl, var(--fg) 10%, transparent); border-radius: 20px; box-shadow: var(--shadow); max-width: 640px; width: 92%; padding: 18px}
+    .panel h3{margin:0 0 8px}
+    .panel .controls{display:flex; gap:10px; justify-content: flex-end; margin-top: 12px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">Gazteak <span>&</span> Politika</div>
+      <nav class="navlinks">
+        <a href="#zergatik">Zergatik politika</a>
+        <a href="#berdinak">“Denak berdinak?”</a>
+        <a href="#bozkatu">Zergatik bozkatu</a>
+        <a href="#kit">Autodefentsa kit-a</a>
+        <a href="#plan60">60' plana</a>
+        <a href="#orain">17 urte: orain</a>
+      </nav>
+      <input id="q" type="search" placeholder="Bilatu orrian…" aria-label="Bilaketa" />
+      <button id="expandAll" class="btn small" title="Zabaldu atal guztiak">⤢ Zabaldu</button>
+      <button id="collapseAll" class="btn small" title="Tolestu atal guztiak">⤡ Tolestu</button>
+      <button id="wizardBtn" class="btn small" title="60' plan laguntzailea">⚡ 60' Wizard</button>
+      <div class="palette" aria-label="Paleta hautatzailea">
+        <button class="swatch" id="palIndigo" data-pal="indigo" aria-label="Indigo + Mint" style="--sw:#7c5cff; --sw2:#49e8a9"></button>
+        <button class="swatch" id="palTeal" data-pal="teal" aria-label="Teal + Coral" style="--sw:#00b3a4; --sw2:#ff7a7a"></button>
+        <button class="swatch" id="palBasque" data-pal="basque" aria-label="Basque Green + Crimson" style="--sw:#0e8f5b; --sw2:#e63946"></button>
+      </div>
+      <div class="spacer"></div>
+      <button id="theme" class="btn ghost" title="Argi/Ilun modua">🌓</button>
+      <button id="print" class="btn" title="Inprimatu edo gorde PDF">🖨️ Inprimatu</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <span class="pill">17 urtekoentzako gida laburra</span>
+      <h1>Zergatik konprometitu <em>pentsamendu politikoarekin</em> eta zergatik <em>bozkatu</em> 18 urte betetzean.</h1>
+      <p>Ez da sermoirik. Datuak, galderak eta erabakitzeko tresna azkarrak. Zure egunerokoa erabakitzen duten gauzak, modu argi eta zintzoan.</p>
+      <div class="grid cols-3" style="margin-top:16px">
+        <div class="card">
+          <div class="eyebrow">Gai kopurua</div>
+          <div class="kpi">10</div>
+          <div class="muted">Zure egunerokoa ukitzen duten politika-arloak.</div>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Plan praktikoa</div>
+          <div class="kpi">60'</div>
+          <div class="muted">ordu erdi + ordu erdi: prest zaude bozkarako.</div>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Eginbideak</div>
+          <div class="kpi">7</div>
+          <div class="muted">Astebeteko erronka, ohitura onak sortzeko.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="zergatik" class="grid cols-2" style="margin-top: 26px">
+      <div class="card">
+        <h2>1) Politika = nork erabakitzen duen zure egunerokoa</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <p class="muted">Egunero ukitzen dizuten 10 erabaki politiko:</p>
+        <div class="chips" id="topics">
+          <div class="chip active" data-filter="all">Guztiak</div>
+          <div class="chip" data-filter="etxebizitza">Etxebizitza</div>
+          <div class="chip" data-filter="hezkuntza">Hezkuntza</div>
+          <div class="chip" data-filter="lana">Lana</div>
+          <div class="chip" data-filter="garraioa">Garraioa</div>
+          <div class="chip" data-filter="osasuna">Osasuna</div>
+          <div class="chip" data-filter="klima">Klima</div>
+          <div class="chip" data-filter="pribatutasuna">Pribatutasuna</div>
+          <div class="chip" data-filter="kultura">Kultura/Kirola</div>
+          <div class="chip" data-filter="hizkuntza">Hizkuntza</div>
+          <div class="chip" data-filter="segurtasuna">Segurtasuna</div>
+        </div>
+        <ul id="daily10">
+          <li data-topic="etxebizitza">🏠 Etxebizitza: alokairuak, parkea, etxebizitza publikoa.</li>
+          <li data-topic="hezkuntza">🎓 Hezkuntza: ratioak, bekak, EBAU/Selektibitate egitura.</li>
+          <li data-topic="lana">💼 Lana: praktikak ordainduak, gutxieneko soldata, kontratuak.</li>
+          <li data-topic="garraioa">🚌 Garraioa: hileko txartela, gaueko autobusak, bidegorriak.</li>
+          <li data-topic="osasuna">🩺 Osasuna: lehen arreta, buruko osasuna, hortzetako zerbitzu publikoa.</li>
+          <li data-topic="klima">🌱 Klima/energia: inbertsio berdeak, zergak eta arauak.</li>
+          <li data-topic="pribatutasuna">🔒 Pribatutasuna: datu-babesa, adimen artifizialaren arauak.</li>
+          <li data-topic="kultura">🎭 Kultura/Kirola: prezioak, ordutegiak, diru-laguntzak.</li>
+          <li data-topic="hizkuntza">🗣️ Hizkuntza: euskararen presentzia hezkuntzan eta administrazioan.</li>
+          <li data-topic="segurtasuna">⚖️ Zuzenbidea/segurtasuna: delituen trataera, prebentzioa vs zigorra.</li>
+        </ul>
+        <div class="callout">“Niri ez zait interesatzen” esan dezakezu; baina <strong>politikak bai zaitu interesatzen</strong>. Norbaitek hartzen ditu erabakiok.</div>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2 id="berdinak">2) “Denak berdinak”?</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <p class="muted">Ez begiratu esloganak; begiratu <strong>neurriak eta aurrekontuak</strong>. Hona eragin handiko lau adibide:</p>
+        <table class="table" id="comparative">
+          <thead>
+            <tr><th>Gaia</th><th>Ikuspegi A (interbentzioa)</th><th>Ikuspegi B (liberalizazioa)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Etxebizitza</td><td>Alokairu-mugak; parke publikoaren hazkundea</td><td>Merkatu askeagoa; inbertsio pribatuaren pizgarriak</td></tr>
+            <tr><td>Klima</td><td>Hiria auto gutxiagorekin; garraio publikoa merke</td><td>Erregulazio gutxiago; erregaien zergen jaitsiera</td></tr>
+            <tr><td>Hezkuntza</td><td>Ratioen jaitsiera; orientazio-zerbitzuak indartu</td><td>Gastua estutu; aukeraren askatasuna lehenetsi</td></tr>
+            <tr><td>Lan-legeak</td><td>Gutxieneko soldata igo; ikuskaritza sendotu</td><td>Malgutasuna; enpresa-zergen jaitsiera</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">Berdin-berdinak balira, aurrekontuak ez lirateke hain ezberdinak izango.</div>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="bozkatu" class="grid cols-2" style="margin-top: 26px">
+      <div class="card">
+        <h2>3) Zergatik bozkatu?</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <ol>
+          <li><strong>Boterea banatzeko tresna</strong> da: ez bozkatu = besteek zure ordez.</li>
+          <li><strong>Sari/zigor mekanismoa</strong>: ondo dabilena saritu, oker dabilena zigortu.</li>
+          <li><strong>Hurbileko eragina</strong>: udal-eserlekuak maiz ehunka botogatik erortzen dira.</li>
+          <li><strong>Zure interesak</strong>: gazteek ez badute bozkatzen, gazteen gaiak atzeratzen dira.</li>
+          <li><strong>Etorkizunaren mapa</strong>: gaurko arauak ≈ biharko aukerak.</li>
+        </ol>
+        <div class="callout">“Nire botoak ez du ezer aldatzen” — <strong>klase bateko 3 lagunen botoak</strong> eserleku bat mugi dezake udaletan.</div>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2 id="kit">4) Pentsamendu politikoa = autodifentsa zibileko kit-a</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <ul>
+          <li><strong>Interesak identifikatu</strong>: nork irabazten du/neurriarekin?</li>
+          <li><strong>Datuak bilatu</strong>: promesa vs aurrekontua (zenbat diru, nori, noiz).</li>
+          <li><strong>Diskurtsoa aztertu</strong>: beldur/haserre pizgarri? Eskatu frogak.</li>
+          <li><strong>Konparatu</strong>: 2–3 iturri; burbuiletik atera.</li>
+          <li><strong>Egiaztatu</strong>: programa idatzia > meme biralak.</li>
+        </ul>
+        <details style="margin-top:8px"><summary>Azkarra: 3 galdera iragazki</summary>
+          <ul>
+            <li>Zein arazo zehatz konpontzen du?</li>
+            <li>Zenbat kostatzen da eta nork ordaintzen?</li>
+            <li>Nola neurtuko dugu funtzionatu duen ala ez?</li>
+          </ul>
+        </details>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="erantzunak" class="grid cols-2" style="margin-top: 26px">
+      <div class="card">
+        <h2>5) “Niri ez zait interesatzen” — erantzun azkarrak</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <details open>
+          <summary>“Ez zait interesatzen.”</summary>
+          <p>Ados, baina <strong>alokairuak</strong> eta <strong>bekak</strong> interesatzen zaizkizu. Hori hemen erabakitzen da.</p>
+        </details>
+        <details>
+          <summary>“Denak berdinak.”</summary>
+          <p>Neurriak eta aurrekontuak konparatu; desberdintasunak agerian daude (ikus taula).</p>
+        </details>
+        <details>
+          <summary>“Nire botoak ez du ezer aldatzen.”</summary>
+          <p>Udaletan eserleku asko <strong>ehunka boto</strong> tartean daude. Gutxitan da “ezer”.</p>
+        </details>
+        <details>
+          <summary>“Politikak zikintzen du.”</summary>
+          <p>Gardentasuna eta kontrol publikoa bozken bidez dator. Kanpoan bazaude, zikina berdin —edo okerrago— geratzen da.</p>
+        </details>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2 id="plan60">6) 60 minutuko plana (bozkatu aurretik)</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <div class="progress" aria-label="Aurrerapena"><span id="pbar"></span></div>
+        <ul id="plan-checklist">
+          <li><label><input type="checkbox"> 15’ — Idatzi <strong>3 kezka pertsonal</strong> (etxea, lana/ikasketak, garraioa…)</label></li>
+          <li><label><input type="checkbox"> 15’ — Bildu <strong>2 alderdiren proposamen</strong> zehatzak gai bakoitzean (programak)</label></li>
+          <li><label><input type="checkbox"> 15’ — Begiratu <strong>aurrekontuak</strong> (zenbat diru doa zure gaiei)</label></li>
+          <li><label><input type="checkbox"> 15’ — Kontrastea: galdetu heldu bati <strong>zer funtzionatu</strong> dion eta <strong>zer ez</strong></label></li>
+        </ul>
+        <small class="muted">✔️ Zerrenda honek gailuan gordetzen du egoera (nabigatzaile berean).</small>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="orain" class="grid cols-2" style="margin-top: 26px">
+      <div class="card">
+        <h2>7) 17 urte badituzu: zer egin <em>orain</em></h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <ul>
+          <li>Ikasleen ordezkaritzan parte hartu edo batzarrera joan; <strong>prak­tika politiko txikia</strong>.</li>
+          <li>Udal-pleno bat ikusi streaming bidez; nola eztabaidatzen eta bozkatzen den.</li>
+          <li>Sinadura-kanpainak, auzo-elkarteak, boluntariotza: ohitura handien haziak.</li>
+          <li>Hedabide <strong>desberdinak</strong> irakurri/ikusi; titular bakarra = ikuspegi bakarra.</li>
+        </ul>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2>8) Mezu-bankua (labur, pegagarriak)</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <div class="chips">
+          <div class="chip">Ez interesatzeak ez zaitu salbatzen</div>
+          <div class="chip">Zure botoa = zure aurrekontua</div>
+          <div class="chip">Programak ≠ memeak</div>
+          <div class="chip">Erreklamatuena saritzen da</div>
+          <div class="chip">Politika ez da taldea; da erabakia</div>
+        </div>
+        </div></div>
+      </div>
+    </section>
+
+    <section id="oinarriak" class="grid cols-2" style="margin-top: 26px">
+      <div class="card">
+        <h2>9) Bozkatzeko oinarrizkoak (18 urte betetzean)</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <ul>
+          <li>Zentsuan automatikoki agertzen zara; eguneratu NAN/errolda datuak.</li>
+          <li><strong>Boto zuria</strong> eta <strong>baliogabea</strong> ez doaz inorengana; <em>eserlekurik ez</em>.</li>
+          <li>Kanpoan bazaude, <strong>posta bidez</strong> eskatu epez (ez utzi azken egunera!).</li>
+        </ul>
+        <div class="callout danger">Epeak galdu = zure ahotsa galdu. Jarri oroigarri bat mugikorrean.</div>
+        </div></div>
+      </div>
+      <div class="card">
+        <h2>10) Erronka: 7 egun</h2>
+        <span class="toggle" aria-hidden="true">▾</span>
+        <div class="content"><div class="inner">
+        <ol id="week">
+          <li><label><input type="checkbox"> Idatzi 3 gai axola zaizkizunak</label></li>
+          <li><label><input type="checkbox"> Bilatu bi programatan proposamenak</label></li>
+          <li><label><input type="checkbox"> Datu bat bilatu (aurrekontua edo epea)</label></li>
+          <li><label><input type="checkbox"> 10' eztabaida zintzoa lagun batekin</label></li>
+          <li><label><input type="checkbox"> Gai baten alde/kontra argudio 1 idatzi</label></li>
+          <li><label><input type="checkbox"> Parte hartu espazio batean (eskolan/auzoan)</label></li>
+          <li><label><input type="checkbox"> Ebaluatu: zer ikasi duzu? zer aldatu?</label></li>
+        </ol>
+        <small class="muted">✔️ Zerrenda honek ere gordeko du egoera gailuan.</small>
+        </div></div>
+      </div>
+    </section>
+
+    <footer class="container">
+      <p>© 2025. Hezkuntza erabilerarako. Edukia libreki molda daiteke, iturria aipatuz. <span class="muted">Egilea: komunikazio kontzientean aditua den irakasle baten laguntza.</span></p>
+    </footer>
+
+  </main>
+
+  <!-- Wizard Modal -->
+  <div id="wizard" class="modal" role="dialog" aria-modal="true" aria-labelledby="wizardTitle">
+    <div class="panel">
+      <h3 id="wizardTitle">60' Plan laguntzailea</h3>
+      <div id="wizardStep" class="muted" style="margin-bottom:10px"></div>
+      <div class="controls">
+        <button id="prev" class="btn small">← Aurrekoa</button>
+        <button id="next" class="btn small">Hurrengoa →</button>
+        <button id="close" class="btn small">Itxi</button>
+      </div>
+    </div>
+  </div>
+
+  <a href="#top" class="btn top" title="Gora itzuli">↑</a>
+
+  <script>
+    // Theme: respect system, toggle on click
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    if(prefersLight) document.documentElement.classList.add('light');
+    document.getElementById('theme').addEventListener('click',()=>{
+      document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', document.documentElement.classList.contains('light') ? 'light' : 'dark');
+    });
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme) document.documentElement.classList.toggle('light', savedTheme==='light');
+
+    // Paleta hautatzailea (persistentea)
+    const savedPal = localStorage.getItem('palette') || 'indigo';
+    document.documentElement.dataset.palette = savedPal;
+    document.querySelectorAll('.swatch').forEach(btn=>{
+      btn.setAttribute('aria-current', btn.dataset.pal === savedPal ? 'true':'false');
+      btn.addEventListener('click', ()=>{
+        const pal = btn.dataset.pal; document.documentElement.dataset.palette = pal; localStorage.setItem('palette', pal);
+        document.querySelectorAll('.swatch').forEach(b=> b.setAttribute('aria-current', b===btn ? 'true':'false'));
+      });
+    });
+
+    // Print
+    document.getElementById('print').addEventListener('click',()=>window.print());
+
+    // Checklist persistence + progress
+    function wireChecklist(listId, barId){
+      const list = document.getElementById(listId);
+      if(!list) return;
+      const boxes = [...list.querySelectorAll('input[type="checkbox"]')];
+      const key = 'chk:'+listId;
+      const state = JSON.parse(localStorage.getItem(key) || '[]');
+      boxes.forEach((b,i)=>{ b.checked = !!state[i]; b.addEventListener('change',()=>{
+        state[i] = b.checked; localStorage.setItem(key, JSON.stringify(state)); update();
+      })});
+      function update(){
+        if(!barId) return;
+        const done = boxes.filter(b=>b.checked).length;
+        const pct = Math.round((done/boxes.length)*100);
+        document.getElementById(barId).style.width = pct+'%';
+        document.getElementById(barId).setAttribute('aria-valuenow', pct);
+      }
+      update();
+      return {boxes, key, state};
+    }
+    const plan = wireChecklist('plan-checklist','pbar');
+    const week = wireChecklist('week');
+
+    // 1) Collapsible cards: make any card with h2 collapsible, persist state
+    const cards = [...document.querySelectorAll('.card')].filter(c=>c.querySelector('h2'));
+    cards.forEach((card, idx)=>{
+      card.dataset.cid = idx;
+      const h2 = card.querySelector('h2');
+      const tgl = card.querySelector('.toggle');
+      let content = card.querySelector('.content');
+      if(!content){
+        content = document.createElement('div');
+        content.className = 'content';
+        const inner = document.createElement('div');
+        inner.className = 'inner';
+        while(h2.nextSibling){ inner.appendChild(h2.nextSibling); }
+        content.appendChild(inner); card.appendChild(content);
+      }
+      function setCollapsed(coll){ content.classList.toggle('collapsed', coll); tgl && (tgl.textContent = coll ? '▸' : '▾'); localStorage.setItem('coll:'+idx, coll?'1':'0'); }
+      const saved = localStorage.getItem('coll:'+idx);
+      // default: first two open, rest closed if no saved state
+      setCollapsed(saved!==null ? saved==='1' : idx>1);
+      (tgl||h2).addEventListener('click', (e)=>{ if(e.target.tagName==='A'||e.target.closest('button')) return; setCollapsed(!content.classList.contains('collapsed')); });
+    });
+
+    // Expand/Collapse all
+    document.getElementById('expandAll').addEventListener('click',()=>{
+      cards.forEach((c,i)=>{ localStorage.setItem('coll:'+i,'0'); c.querySelector('.content').classList.remove('collapsed'); const t=c.querySelector('.toggle'); if(t) t.textContent='▾';});
+    });
+    document.getElementById('collapseAll').addEventListener('click',()=>{
+      cards.forEach((c,i)=>{ localStorage.setItem('coll:'+i,'1'); c.querySelector('.content').classList.add('collapsed'); const t=c.querySelector('.toggle'); if(t) t.textContent='▸';});
+    });
+
+    // 2) Live Search + highlight across cards
+    const q = document.getElementById('q');
+    function clearMarks(el){ el.querySelectorAll('mark').forEach(m=>{ const p=m.parentNode; p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); }); }
+    function highlight(el, term){
+      if(!term) return;
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {acceptNode: n=> n.nodeValue.toLowerCase().includes(term) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT});
+      const texts = []; while(walker.nextNode()) texts.push(walker.currentNode);
+      texts.forEach(t=>{
+        const idx = t.nodeValue.toLowerCase().indexOf(term);
+        if(idx>-1){
+          const span = document.createElement('mark');
+          const before = t.nodeValue.slice(0,idx); const match = t.nodeValue.slice(idx, idx+term.length); const after = t.nodeValue.slice(idx+term.length);
+          const frag = document.createDocumentFragment();
+          frag.append(before, span, after);
+          span.textContent = match; t.parentNode.replaceChild(frag, t);
+        }
+      });
+    }
+    q.addEventListener('input', ()=>{
+      const term = q.value.trim().toLowerCase();
+      cards.forEach(c=>{ clearMarks(c); });
+      if(!term){ cards.forEach(c=> c.style.display=''); return; }
+      cards.forEach(c=>{
+        const txt = c.textContent.toLowerCase();
+        const match = txt.includes(term);
+        c.style.display = match ? '' : 'none';
+        if(match) highlight(c, term);
+      });
+    });
+
+    // Topic filter chips for daily 10
+    const chips = document.querySelectorAll('#topics .chip');
+    const items = document.querySelectorAll('#daily10 li');
+    chips.forEach(ch=> ch.addEventListener('click',()=>{
+      chips.forEach(x=>x.classList.remove('active'));
+      ch.classList.add('active');
+      const f = ch.dataset.filter;
+      items.forEach(li=>{
+        li.style.display = (f==='all' || li.dataset.topic===f) ? '' : 'none';
+      });
+    }));
+
+    // 3) 60' Wizard modal from checklist items
+    const wizard = document.getElementById('wizard');
+    const wizardBtn = document.getElementById('wizardBtn');
+    const steps = [...document.querySelectorAll('#plan-checklist li')].map(li=>({text: li.innerText.trim(), li}));
+    let idx = 0;
+    function showWizard(){ wizard.classList.add('open'); document.getElementById('wizardStep').textContent = (idx+1)+"/"+steps.length+" — "+steps[idx].text; }
+    wizardBtn.addEventListener('click', ()=>{ idx = steps.findIndex(s=> !s.li.querySelector('input').checked ); if(idx<0) idx = 0; showWizard(); });
+    document.getElementById('close').addEventListener('click', ()=> wizard.classList.remove('open'));
+    document.getElementById('prev').addEventListener('click', ()=>{ idx = Math.max(0, idx-1); showWizard(); });
+    document.getElementById('next').addEventListener('click', ()=>{ const cb = steps[idx].li.querySelector('input'); cb.checked = true; cb.dispatchEvent(new Event('change')); idx = Math.min(steps.length-1, idx+1); showWizard(); });
+
+    // Keyboard: ESC to close wizard
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') wizard.classList.remove('open'); });
+  </script>
+</body>
+</html>
